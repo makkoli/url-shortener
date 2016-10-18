@@ -1,0 +1,44 @@
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+
+        <ul>
+            <li>
+                Pass a URL as a parameter and receive a shortened URL in the response.
+            </li>
+            <li>
+                Visiting the shortened link redirects to the original link.
+            </li>
+            <li>
+                Takes URLs in the forms:
+                <ul>
+                    <li><code>https://www.google.com</code></li>
+                    <li><code>wwww.google.com</code></li>
+                    <li><code>google.com</code></li>
+                    <li><code>http://foo.com:8000</code></li>
+                    <li><code>www.example.com/page1/page2</code></li>
+                </ul>
+        </ul>
+
+        <h2><u>Example:</u></h2>
+        <p>
+            <code>https://little-url.herokuapp.com/new/https://www.google.com</code>
+        </p>
+        <h3>Returns</h3>
+        <p>
+            <code>{ "original_url":"http://foo.com:80", "short_url":"https://little-url.herokuapp.com/8170" }</code>
+        </p>
+        <h2><u>Usage:</u></h2>
+        <p>
+            <code>https://little-url.herokuapp.com/2871</code> redirects to <code>https://www.google.com</code>
+        </p>
+    </div>
+</body>
+</html>

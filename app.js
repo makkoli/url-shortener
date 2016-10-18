@@ -1,7 +1,8 @@
 var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
-var url = require('./urlhelper');
+var urlHelper = require('./urlhelper');
 var app = express();
+var urlEncode = "";
 
 MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
     if (err) {
@@ -13,20 +14,30 @@ MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
         res.sendFile(__dirname + '/index.html');
     });
 
-    app.param('url', function(req, res, next, id) {
-
-        next();
+    app.get('/*', function(req, res, next) {
+        // Check if url is valid and encode it
+        if (urlHelper.checkURL(req.params[0]) || urlHelper.checkRedirect(req.params[0])) {
+            urlEncode = encodeURIComponent(req.params[0]);
+            
+            next();
+        }
+        // Otherwise, invalid url
+        else {
+            res.send({
+                "Error": "Invalid URL format"
+            });
+        }
     });
 
     // Check and add a new url to the db
-    app.get('/:url', function(req, res) {
+    app.get('/*', function(req, res) {
         res.status(200);
         res.set('Content-Type', 'text/plain');
         res.charset = 'utf-8';
         // Check if the url is a four digit redirect
         // and redirect if it is valid
-        if (url.checkRedirect(req.params.url)) {
-            db.collection('url').find({shortened: parseInt(req.params.url)}).toArray(function(err, docs) {
+        if (urlHelper.checkRedirect(urlEncode)) {
+            db.collection('url').find({shortened: parseInt(urlEncode)}).toArray(function(err, docs) {
                 if (err) {
                     console.log(err);
                 }
@@ -36,21 +47,21 @@ MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
                 }
 
                 // Redirect
-                res.redirect('https://' + docs[0].url);
+                res.redirect(decodeURIComponent(docs[0].url));
             });
         }
-        // Otherwise, check if the url is valid and insert into the db
-        else if (url.checkURL(req.params.url)) {
-            var shortURL = url.shortenURL();
+        // Otherwise, insert into the db and return the shortened url
+        else {
+            var shortURL = urlHelper.shortenURL();
             // Check if url is in the database
-            db.collection('url').find({url: req.params.url}).toArray(function(err, docs) {
+            db.collection('url').find({url: urlEncode}).toArray(function(err, docs) {
                 if (err) {
                     console.log(error);
                 }
                 // If the url is not in the db, insert it
                 if (docs.length < 1) {
                     db.collection('url').insertOne(
-                        { 'url': req.params.url, 'shortened': shortURL },
+                        { 'url': urlEncode, 'shortened': shortURL },
                         function(err, record) {
                             // Error inserting
                             if (err) {
@@ -58,7 +69,7 @@ MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
                             }
                             // Successfully inserted
                             res.send({
-                                "original_url": req.params.url,
+                                "original_url": decodeURIComponent(urlEncode),
                                 "short_url": shortURL
                             });
                         }
@@ -67,16 +78,10 @@ MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
                 // Else, return the url from the db
                 else {
                     return res.send({
-                        "original_url": docs[0].url,
+                        "original_url": decodeURIComponent(docs[0].url),
                         "short_url": docs[0].shortened
                     });
                 }
-            });
-        }
-        // Otherwise, invalid redirect or url
-        else {
-            res.send({
-                "Error": "Invalid URL format"
             });
         }
     });

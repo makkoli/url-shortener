@@ -17,7 +17,7 @@ exports.checkURL = function(url) {
 // Return true if it is a redirect; false otherwise
 // @url: url to check
 exports.checkRedirect = function(url) {
-    return /\d{4}/.test(url);
+    return /\b\d{4}\b/.test(url);
 };
 
 // Returns a short 4 digit version of a url

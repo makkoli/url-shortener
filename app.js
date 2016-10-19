@@ -15,10 +15,12 @@ MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
     });
 
     app.get('/*', function(req, res, next) {
-        // Check if url is valid and encode it
-        if (urlHelper.checkURL(req.params[0]) || urlHelper.checkRedirect(req.params[0])) {
-            urlEncode = encodeURIComponent(req.params[0]);
-            
+        var url = req.params[0];
+        // Check if url is valid and encode it before accessing db
+        if (urlHelper.checkURL(url) || urlHelper.checkRedirect(url)) {
+            urlEncode = encodeURIComponent(url);
+            // TODO: Fix the short_url to add the url to the front
+            // TODO: Deploy to heroku to do previous
             next();
         }
         // Otherwise, invalid url
@@ -47,7 +49,7 @@ MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
                 }
 
                 // Redirect
-                res.redirect(decodeURIComponent(docs[0].url));
+                res.redirect(urlHelper.addHTTP(decodeURIComponent(docs[0].url)));
             });
         }
         // Otherwise, insert into the db and return the shortened url

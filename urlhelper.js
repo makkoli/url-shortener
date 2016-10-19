@@ -13,11 +13,11 @@ exports.checkURL = function(url) {
     return false;
 };
 
-// Checks if the url is a 2-4 digit url redirect
+// Checks if the url is a 1-4 digit url redirect
 // Return true if it is a redirect; false otherwise
 // @url: url to check
 exports.checkRedirect = function(url) {
-    return /\b\d{2,4}\b/.test(url);
+    return /\b\d{1,4}\b/.test(url);
 };
 
 // Returns a short 4 digit version of a url

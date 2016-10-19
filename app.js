@@ -2,7 +2,6 @@ var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
 var urlHelper = require('./urlhelper');
 var app = express();
-var urlEncode = "";
 
 MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
     if (err) {
@@ -65,7 +64,7 @@ MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
                     db.collection('url').insertOne(
                         { 'url': urlEncode, 'shortened': shortURL },
                         function(err, record) {
-                            // Error inserting
+                            // Error inserting record
                             if (err) {
                                 console.log(err);
                             }

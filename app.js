@@ -2,24 +2,24 @@ var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
 var urlHelper = require('./urlhelper');
 var app = express();
+var mongoUrl = process.env.MONGOLAB_URI || 'mongodb://localhost:27017/url';
+var port = process.env.PORT || 8000;
 
-MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
+// Get the index file for homepage
+app.get('/', function(req, res) {
+    res.sendFile(__dirname + '/index.html');
+});
+
+MongoClient.connect(mongoUrl, function(err, db) {
     if (err) {
         console.log(err);
     }
-
-    // Get the index file for homepage
-    app.get('/', function(req, res) {
-        res.sendFile(__dirname + '/index.html');
-    });
 
     app.get('/*', function(req, res, next) {
         var url = req.params[0];
         // Check if url is valid and encode it before accessing db
         if (urlHelper.checkURL(url) || urlHelper.checkRedirect(url)) {
             urlEncode = encodeURIComponent(url);
-            // TODO: Fix the short_url to add the url to the front
-            // TODO: Deploy to heroku to do previous
             next();
         }
         // Otherwise, invalid url
@@ -85,9 +85,11 @@ MongoClient.connect('mongodb://localhost:27017/url', function(err, db) {
                 }
             });
         }
+
+        db.close();
     });
 
-    var server = app.listen(8000, function() {
+    var server = app.listen(port, function() {
         var port = server.address().port;
         console.log('Express server listening on port %s.', port);
     });

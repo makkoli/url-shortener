@@ -86,7 +86,7 @@ MongoClient.connect(mongoUrl, function(err, db) {
             });
         }
 
-        db.close();
+        //db.close();
     });
 
     var server = app.listen(port, function() {
